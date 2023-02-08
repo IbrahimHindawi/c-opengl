@@ -15,9 +15,9 @@ set source=..\source
 rem program
 set inc=/I %libroot%\glfw\include\ /I %libroot%\glad\include\
 set slib=%libroot%\glfw\build\src\Debug\glfw3.lib
-set cfiles=%libroot%\glad\src\glad.c %source%\main.c 
-set ofiles=glad.obj main.obj
+set cfiles=%libroot%\glad\src\glad.c %source%\main.c %source%\shader.c 
+set ofiles=glad.obj main.obj shader.obj
 
-cl /nologo /MDd /c /nologo %inc% %cfiles%
+cl /Zi /nologo /MDd /c /nologo %inc% %cfiles%
 link /nologo /out:main.exe %ofiles% %slib% %k32% %u32% %g32% %s32%  
 popd build

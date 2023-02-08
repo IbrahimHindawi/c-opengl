@@ -5,8 +5,13 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "shader.h"
+
 #define true 1
 #define false 0
+#define shader_source_buffer_size 512
+
+char shader_source_buffer[shader_source_buffer_size];
 
 const char *vertex_shader_source = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
@@ -50,26 +55,6 @@ void process_input(GLFWwindow *window) {
     }
 }    
 
-void shader_compile_check(uint32_t shader) {
-    int success;
-    char info_log[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(shader, 512, NULL, info_log);
-        printf("shader compile error: %s.\n", info_log);
-    }
-}
-
-void shader_link_check(uint32_t shader) {
-    int success;
-    char info_log[512];
-    glGetProgramiv(shader, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shader, 512, NULL, info_log);
-        printf("shader compile error: %s.\n", info_log);
-    }
-}
-
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -90,21 +75,36 @@ int main() {
         return -1;
     }
 
-    uint32_t vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
-    glCompileShader(vertex_shader);
-    shader_compile_check(vertex_shader);
+    int num_attribs;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &num_attribs);
+    // printf("Maximum number of attributes: %d.\n", num_attribs);
 
-    uint32_t fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
-    glCompileShader(fragment_shader);
-    shader_compile_check(fragment_shader);
+    FILE *fileptr;
+    fileptr = fopen("C:/devel/c-opengl/source/simple.vert", "r");
+    if (fileptr != NULL) {
+        size_t newlen = fread(shader_source_buffer, sizeof(char), shader_source_buffer_size, fileptr);
+        if (ferror(fileptr) != 0){
+            fputs("error reading file!", stderr);
+        } else {
+            shader_source_buffer[newlen++] = '\0';
+        }
+    }
+    fclose(fileptr);
+    uint32_t vertex_shader = shader_compile(shader_source_buffer, GL_VERTEX_SHADER);
 
-    uint32_t shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
-    shader_link_check(shader_program);
+    fileptr = fopen("C:/devel/c-opengl/source/simple.frag", "r");
+    if (fileptr != NULL) {
+        size_t newlen = fread(shader_source_buffer, sizeof(char), shader_source_buffer_size, fileptr);
+        if (ferror(fileptr) != 0){
+            fputs("error reading file!", stderr);
+        } else {
+            shader_source_buffer[newlen++] = '\0';
+        }
+    }
+    fclose(fileptr);
+    uint32_t fragment_shader = shader_compile(shader_source_buffer, GL_FRAGMENT_SHADER);
+
+    uint32_t shader_program = shader_link(vertex_shader, fragment_shader);
 
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
