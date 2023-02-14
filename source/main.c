@@ -12,6 +12,9 @@
 #define false 0
 #define shader_source_buffer_size 512
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 char shader_source_buffer[shader_source_buffer_size];
 
 // triangle
@@ -22,10 +25,10 @@ float vertices[] = {
 };
 
 float svertices[] = {
-     0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  // top right
-     0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  0.0f, // bottom right
-    -0.5f, -0.5f,  0.0f,  0.0f,  0.0f,  1.0f, // bottom left
-    -0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f // top left 
+     0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,  // top right
+     0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,  // bottom right
+    -0.5f, -0.5f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,  // bottom left
+    -0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f   // top left 
 };
 
 uint32_t sindices[] = {
@@ -112,6 +115,25 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    uint32_t texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // set texture parms
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    uint32_t width, height, n_channels;
+    uint8_t *data = stbi_load("C:/devel/c-opengl/source/wall.jpg", &width, &height, &n_channels, 0);
+    if(data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        printf("failed to load texture.");
+    }
+    //stbi_free(data);
+    free(data);
+
     uint32_t svao, svbo, sebo;
     glGenVertexArrays(1, &svao);
     glGenBuffers(1, &svbo);
@@ -125,10 +147,12 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sindices), sindices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -151,6 +175,7 @@ int main() {
         glUseProgram(shader_program);
         // glUniform4f(vertex_color_location, 0.0f, green_value, 0.0f, 1.0f);
 
+        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(svao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);

@@ -13,7 +13,7 @@ set libroot=C:\devel
 set source=..\source
 
 rem program
-set inc=/I %libroot%\glfw\include\ /I %libroot%\glad\include\
+set inc=/I %libroot%\glfw\include /I %libroot%\glad\include /I %libroot%\stb
 set slib=%libroot%\glfw\build\src\Debug\glfw3.lib
 set cfiles=%libroot%\glad\src\glad.c %source%\main.c %source%\shader.c 
 set ofiles=glad.obj main.obj shader.obj
