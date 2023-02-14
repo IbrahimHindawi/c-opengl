@@ -131,8 +131,7 @@ int main() {
     } else {
         printf("failed to load texture.");
     }
-    //stbi_free(data);
-    free(data);
+    STBI_FREE(data);
 
     uint32_t svao, svbo, sebo;
     glGenVertexArrays(1, &svao);
