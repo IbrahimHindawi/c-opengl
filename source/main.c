@@ -71,7 +71,7 @@ int main() {
     // printf("Maximum number of attributes: %d.\n", num_attribs);
 
     FILE *fileptr;
-    fileptr = fopen("C:/devel/c-opengl/source/simple.vert", "r");
+    fileptr = fopen("source/simple.vert", "r");
     if (fileptr != NULL) {
         size_t newlen = fread(shader_source_buffer, sizeof(char), shader_source_buffer_size, fileptr);
         if (ferror(fileptr) != 0){
@@ -83,7 +83,7 @@ int main() {
     fclose(fileptr);
     uint32_t vertex_shader = shader_compile(shader_source_buffer, GL_VERTEX_SHADER);
 
-    fileptr = fopen("C:/devel/c-opengl/source/simple.frag", "r");
+    fileptr = fopen("source/simple.frag", "r");
     if (fileptr != NULL) {
         size_t newlen = fread(shader_source_buffer, sizeof(char), shader_source_buffer_size, fileptr);
         if (ferror(fileptr) != 0){
@@ -124,7 +124,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     uint32_t width, height, n_channels;
-    uint8_t *data = stbi_load("C:/devel/c-opengl/source/wall.jpg", &width, &height, &n_channels, 0);
+    uint8_t *data = stbi_load("source/wall.jpg", &width, &height, &n_channels, 0);
     if(data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
