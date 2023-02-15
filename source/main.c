@@ -123,8 +123,9 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     uint32_t width, height, n_channels;
-    uint8_t *data = stbi_load("source/wall.jpg", &width, &height, &n_channels, 0);
+    uint8_t *data = stbi_load("source/container.jpg", &width, &height, &n_channels, 0);
     if(data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -148,14 +149,13 @@ int main() {
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
     while(!glfwWindowShouldClose(window)) {
         process_input(window);
 
@@ -182,7 +182,13 @@ int main() {
         glfwPollEvents();
         glfwSwapBuffers(window);
     }
-    glViewport(0, 0, 800, 600);
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+
+    glDeleteVertexArrays(1, &svao);
+    glDeleteBuffers(1, &svbo);
+    glDeleteBuffers(1, &sebo);
+
     glfwTerminate();
     return 0;
 }
