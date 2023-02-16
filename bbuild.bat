@@ -14,14 +14,14 @@ set thirdparty=..\thirdparty
 set libroot=C:\devel
 
 rem program
-set inc=/I %libroot%\glfw\include /I %thirdparty%\glad\include /I %thirdparty%\stb
-set slib=%libroot%\glfw\build\src\Debug\glfw3.lib
+set inc=/I %libroot%\glfw\include /I %libroot%\cglm\include /I %thirdparty%\glad\include /I %thirdparty%\stb
+set slib=%libroot%\glfw\build\src\Debug\glfw3.lib %libroot%\cglm\win\x64\Debug\cglm.lib
 set cfiles=%thirdparty%\glad\src\glad.c %source%\main.c %source%\shader.c 
 set ofiles=glad.obj main.obj shader.obj
 
 echo:
 echo compile...
-cl /Zi /nologo /MDd /c /nologo %inc% %cfiles%
+cl /Zi /MDd /c /nologo %inc% %cfiles%
 
 echo:
 echo link...

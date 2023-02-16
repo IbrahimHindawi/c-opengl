@@ -5,6 +5,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <cglm/vec3.h>
 
 #include "shader.h"
 
