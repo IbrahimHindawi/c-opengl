@@ -1,4 +1,4 @@
-rem @echo off
+@echo off
 mkdir build
 pushd build
 
@@ -19,6 +19,11 @@ set slib=%libroot%\glfw\build\src\Debug\glfw3.lib
 set cfiles=%thirdparty%\glad\src\glad.c %source%\main.c %source%\shader.c 
 set ofiles=glad.obj main.obj shader.obj
 
+echo:
+echo compile...
 cl /Zi /nologo /MDd /c /nologo %inc% %cfiles%
+
+echo:
+echo link...
 link /nologo /out:main.exe %ofiles% %slib% %k32% %u32% %g32% %s32%  
 popd build
