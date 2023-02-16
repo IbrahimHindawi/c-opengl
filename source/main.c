@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cglm/vec3.h>
+#include <cglm/mat4.h>
+#include <cglm/affine.h>
 
 #include "shader.h"
 
@@ -157,7 +159,17 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
     
+    float angle = 0.0f;
+    vec3 axis = {0.0f, 0.0f, 1.0f};
+
+    mat4 trans;
+    glm_mat4_identity(trans);
+    trans[0][0] *= 1.5f;
+    trans[1][1] *= 0.5f;
+    trans[2][2] *= 0.5f;
+
     while(!glfwWindowShouldClose(window)) {
+        angle += 0.01f;
         process_input(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -172,9 +184,14 @@ int main() {
         // float green_value = (sin(time_value) / 2.0f) + 0.5f;
         // int vertex_color_location = glGetUniformLocation(shader_program, "ucolor");
 
+        // glm_mat4_scale(trans, 0.1f);
+        // printf("%f\n", trans[1][1]);
+        uint32_t transform_location = glGetUniformLocation(shader_program, "Transform");
+        glUniformMatrix4fv(transform_location, 1, GL_FALSE, trans[0]);
+        glm_rotate_make(trans, angle, axis);
+
         glUseProgram(shader_program);
         // glUniform4f(vertex_color_location, 0.0f, green_value, 0.0f, 1.0f);
-
         glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(svao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
