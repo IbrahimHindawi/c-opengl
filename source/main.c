@@ -10,15 +10,14 @@
 #include <cglm/affine.h>
 
 #include "shader.h"
+#include "fileops.h"
 
 #define true 1
 #define false 0
-#define shader_source_buffer_size 512
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-char shader_source_buffer[shader_source_buffer_size];
 
 // triangle
 float vertices[] = {
@@ -43,11 +42,12 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void process_input(GLFWwindow *window) {
+void input(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);   
     }
 }    
+
 
 int main() {
     glfwInit();
@@ -73,55 +73,28 @@ int main() {
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &num_attribs);
     // printf("Maximum number of attributes: %d.\n", num_attribs);
 
-    FILE *fileptr;
-    fileptr = fopen("source/simple.vert", "r");
-    if (fileptr != NULL) {
-        size_t newlen = fread(shader_source_buffer, sizeof(char), shader_source_buffer_size, fileptr);
-        if (ferror(fileptr) != 0){
-            fputs("error reading file!", stderr);
-        } else {
-            shader_source_buffer[newlen++] = '\0';
-        }
-    }
-    fclose(fileptr);
-    uint32_t vertex_shader = shader_compile(shader_source_buffer, GL_VERTEX_SHADER);
+    /***********************************************************************************
+     *                              SHADER                                             *
+     ***********************************************************************************/
+    fops_read("source/simple.vert");
+    uint32_t vertex_shader = shader_compile(fops_buffer, GL_VERTEX_SHADER);
 
-    fileptr = fopen("source/simple.frag", "r");
-    if (fileptr != NULL) {
-        size_t newlen = fread(shader_source_buffer, sizeof(char), shader_source_buffer_size, fileptr);
-        if (ferror(fileptr) != 0){
-            fputs("error reading file!", stderr);
-        } else {
-            shader_source_buffer[newlen++] = '\0';
-        }
-    }
-    fclose(fileptr);
-    uint32_t fragment_shader = shader_compile(shader_source_buffer, GL_FRAGMENT_SHADER);
+    fops_read("source/simple.frag");
+    uint32_t fragment_shader = shader_compile(fops_buffer, GL_FRAGMENT_SHADER);
 
     uint32_t shader_program = shader_link(vertex_shader, fragment_shader);
 
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    uint32_t vao, vbo;
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
 
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
+    /***********************************************************************************
+     *                              TEXTURE                                            *
+     ***********************************************************************************/
     uint32_t texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    // set texture parms
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -136,6 +109,24 @@ int main() {
         printf("failed to load texture.");
     }
     STBI_FREE(data);
+
+    /***********************************************************************************
+     *                              GLOBJECTS                                          *
+     ***********************************************************************************/
+    uint32_t vao, vbo;
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     uint32_t svao, svbo, sebo;
     glGenVertexArrays(1, &svao);
@@ -159,6 +150,9 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
     
+    /***********************************************************************************
+     *                              TRANSFORMS                                         *
+     ***********************************************************************************/
     float angle = 0.0f;
     vec3 axis = {0.0f, 0.0f, 1.0f};
 
@@ -170,7 +164,7 @@ int main() {
 
     while(!glfwWindowShouldClose(window)) {
         angle += 0.01f;
-        process_input(window);
+        input(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
