@@ -155,12 +155,6 @@ int main() {
      ***********************************************************************************/
     float angle = 0.0f;
 
-    // mat4 trans;
-    // glm_mat4_identity(trans);
-    // trans[0][0] *= 1.5f;
-    // trans[1][1] *= 0.5f;
-    // trans[2][2] *= 0.5f;
-
     mat4 model;
     glm_mat4_identity(model);
     vec3 axis = {1.0f, 0.0f, 0.0f};
@@ -182,18 +176,6 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
          
-        // glUseProgram(shader_program);
-        // glBindVertexArray(vao);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-        // glBindVertexArray(0);
-
-        // float time_value = glfwGetTime();
-        // float green_value = (sin(time_value) / 2.0f) + 0.5f;
-        // int vertex_color_location = glGetUniformLocation(shader_program, "ucolor");
-
-        // uint32_t transform_location = glGetUniformLocation(shader_program, "Transform");
-        // glUniformMatrix4fv(transform_location, 1, GL_FALSE, trans[0]);
-
         uint32_t model_location = glGetUniformLocation(shader_program, "model");
         glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
 
