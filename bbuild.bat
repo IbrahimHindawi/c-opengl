@@ -14,16 +14,26 @@ set thirdparty=..\thirdparty
 set libroot=C:\devel
 
 rem program
-set inc=/I %libroot%\glfw\include /I %libroot%\cglm\include /I %thirdparty%\glad\include /I %thirdparty%\stb
 set slib=%libroot%\glfw\build\src\Debug\glfw3.lib %libroot%\cglm\win\x64\Debug\cglm.lib
 set cfiles=%thirdparty%\glad\src\glad.c %source%\main.c %source%\shader.c %source%\fileops.c 
-set ofiles=glad.obj main.obj shader.obj fileops.obj
+
+rem set ofiles=glad.obj main.obj shader.obj fileops.obj
+set ofiles=glad.o main.o shader.o fileops.o
 
 echo:
 echo compile...
-cl /Zi /MDd /c /nologo %inc% %cfiles%
+
+rem clang
+set clinc=-I %libroot%\glfw\include -I %libroot%\cglm\include -I %thirdparty%\glad\include -I %thirdparty%\stb
+clang -c %cfiles% %clinc% -MJ compile_commands.json
+
+rem msvc++
+rem set inc=/I %libroot%\glfw\include /I %libroot%\cglm\include /I %thirdparty%\glad\include /I %thirdparty%\stb
+rem cl /Zi /MDd /c /nologo %inc% %cfiles%
 
 echo:
 echo link...
-link /nologo /out:main.exe %ofiles% %slib% %k32% %u32% %g32% %s32%  
+link /nologo /FORCE:MULTIPLE /out:main.exe %ofiles% %slib% %k32% %u32% %g32% %s32%  
+
+
 popd build

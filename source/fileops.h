@@ -12,4 +12,4 @@ char fops_buffer[fops_buffer_size];
 
 void fops_read(const char *file_path);
 
-#endif FILEOPS_H
+#endif

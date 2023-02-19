@@ -5,6 +5,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
 #include <cglm/affine.h>
@@ -18,6 +19,16 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+
+vec3 campos = {0};
+vec3 camtgt = {0};
+vec3 camdir = {0};
+vec3 camfrt = {0};
+vec3 camrgt = {0};
+vec3 camup  = {0};
+
+mat4 view = {0};
 
 
 // triangle
@@ -100,7 +111,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    uint32_t width, height, n_channels;
+    int32_t width, height, n_channels;
     uint8_t *data = stbi_load("source/container.jpg", &width, &height, &n_channels, 0);
     if(data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -153,17 +164,24 @@ int main() {
     /***********************************************************************************
      *                              TRANSFORMS                                         *
      ***********************************************************************************/
+    campos[2] = 3.0f;
+    glm_vec3_sub(camdir, campos, camdir);
+    glm_vec3_normalize(camdir);
+
+    glm_vec3_cross((vec3){0.0f, 1.0f, 0.0f}, camdir, camrgt);
+    glm_vec3_normalize(camrgt);
+
+    glm_vec3_cross(camdir, camrgt, camup);
+
     float angle = 0.0f;
 
     mat4 model;
     glm_mat4_identity(model);
-    vec3 axis = {1.0f, 0.0f, 0.0f};
-    glm_rotate(model, glm_rad(-55.0f), axis);
 
-    mat4 view;
+    // mat4 view;
     glm_mat4_identity(view);
-    vec3 pos = {0.0f, 0.0f, -3.0f};
-    glm_translate(view, pos);
+    // vec3 pos = {0.0f, 0.0f, -3.0f};
+    // glm_translate(view, pos);
 
     mat4 projection;
     glm_mat4_identity(projection);
@@ -176,8 +194,15 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        uint32_t model_location = glGetUniformLocation(shader_program, "model");
-        glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
+        // uint32_t model_location = glGetUniformLocation(shader_program, "model");
+        // glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
+        float r = 10.0f;
+        float camx = sin(glfwGetTime() * r);
+        float camy = cos(glfwGetTime() * r);
+        glm_lookat( (vec3){camx, 10.0f, camy}, // eyes
+                    (vec3){0.0f, 0.0f, 0.0f}, // center
+                    (vec3){0.0f, 1.0f, 0.0f}, // up
+                    view);
 
         uint32_t view_location = glGetUniformLocation(shader_program, "view");
         glUniformMatrix4fv(view_location, 1, GL_FALSE, view[0]);
@@ -189,7 +214,18 @@ int main() {
 
         glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(svao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        for (int count = 0; count < 10; count += 1) {
+            glm_mat4_identity(model);
+            vec3 axis = {1.0f, 0.0f, 0.0f};
+            glm_rotate(model, glm_rad(-90.0f), axis);
+            vec3 trans = {0.0f, 0.0f, -3.0f};
+            trans[1] += (float)count;
+            glm_translate(model, trans);
+            uint32_t model_location = glGetUniformLocation(shader_program, "model");
+            glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
+
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        }
         glBindVertexArray(0);
 
         glfwPollEvents();
