@@ -8,6 +8,7 @@
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
 #include <cglm/affine.h>
+#include <cglm/cam.h>
 
 #include "shader.h"
 #include "fileops.h"
@@ -47,7 +48,6 @@ void input(GLFWwindow *window) {
         glfwSetWindowShouldClose(window, true);   
     }
 }    
-
 
 int main() {
     glfwInit();
@@ -154,16 +154,29 @@ int main() {
      *                              TRANSFORMS                                         *
      ***********************************************************************************/
     float angle = 0.0f;
-    vec3 axis = {0.0f, 0.0f, 1.0f};
 
-    mat4 trans;
-    glm_mat4_identity(trans);
-    trans[0][0] *= 1.5f;
-    trans[1][1] *= 0.5f;
-    trans[2][2] *= 0.5f;
+    // mat4 trans;
+    // glm_mat4_identity(trans);
+    // trans[0][0] *= 1.5f;
+    // trans[1][1] *= 0.5f;
+    // trans[2][2] *= 0.5f;
+
+    mat4 model;
+    glm_mat4_identity(model);
+    vec3 axis = {1.0f, 0.0f, 0.0f};
+    glm_rotate(model, glm_rad(-55.0f), axis);
+
+    mat4 view;
+    glm_mat4_identity(view);
+    vec3 pos = {0.0f, 0.0f, -3.0f};
+    glm_translate(view, pos);
+
+    mat4 projection;
+    glm_mat4_identity(projection);
+    glm_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f, projection);
 
     while(!glfwWindowShouldClose(window)) {
-        angle += 0.01f;
+        angle += 0.0001f;
         input(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -178,14 +191,20 @@ int main() {
         // float green_value = (sin(time_value) / 2.0f) + 0.5f;
         // int vertex_color_location = glGetUniformLocation(shader_program, "ucolor");
 
-        // glm_mat4_scale(trans, 0.1f);
-        // printf("%f\n", trans[1][1]);
-        uint32_t transform_location = glGetUniformLocation(shader_program, "Transform");
-        glUniformMatrix4fv(transform_location, 1, GL_FALSE, trans[0]);
-        glm_rotate_make(trans, angle, axis);
+        // uint32_t transform_location = glGetUniformLocation(shader_program, "Transform");
+        // glUniformMatrix4fv(transform_location, 1, GL_FALSE, trans[0]);
 
+        uint32_t model_location = glGetUniformLocation(shader_program, "model");
+        glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
+
+        uint32_t view_location = glGetUniformLocation(shader_program, "view");
+        glUniformMatrix4fv(view_location, 1, GL_FALSE, view[0]);
+
+        uint32_t projection_location = glGetUniformLocation(shader_program, "projection");
+        glUniformMatrix4fv(projection_location, 1, GL_FALSE, projection[0]);
+        
         glUseProgram(shader_program);
-        // glUniform4f(vertex_color_location, 0.0f, green_value, 0.0f, 1.0f);
+
         glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(svao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
