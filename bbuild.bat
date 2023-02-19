@@ -18,18 +18,18 @@ set slib=%libroot%\glfw\build\src\Debug\glfw3.lib %libroot%\cglm\win\x64\Debug\c
 set cfiles=%thirdparty%\glad\src\glad.c %source%\main.c %source%\shader.c %source%\fileops.c 
 
 rem set ofiles=glad.obj main.obj shader.obj fileops.obj
-set ofiles=glad.o main.o shader.o fileops.o
+set ofiles=glad.obj main.obj shader.obj fileops.obj
 
 echo:
 echo compile...
 
 rem clang
-set clinc=-I %libroot%\glfw\include -I %libroot%\cglm\include -I %thirdparty%\glad\include -I %thirdparty%\stb
-clang -c %cfiles% %clinc% -MJ compile_commands.json
+rem set clinc=-I %libroot%\glfw\include -I %libroot%\cglm\include -I %thirdparty%\glad\include -I %thirdparty%\stb
+rem clang -c %cfiles% %clinc% -MJ compile_commands.json
 
 rem msvc++
-rem set inc=/I %libroot%\glfw\include /I %libroot%\cglm\include /I %thirdparty%\glad\include /I %thirdparty%\stb
-rem cl /Zi /MDd /c /nologo %inc% %cfiles%
+set inc=/I %libroot%\glfw\include /I %libroot%\cglm\include /I %thirdparty%\glad\include /I %thirdparty%\stb
+cl /Zi /MDd /c /nologo %inc% %cfiles%
 
 echo:
 echo link...
