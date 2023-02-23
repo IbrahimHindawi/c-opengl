@@ -20,6 +20,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+char fops_buffer[1024];
 
 vec3 campos = {0};
 vec3 camtgt = {0};
