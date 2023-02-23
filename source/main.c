@@ -87,10 +87,10 @@ int main() {
     /***********************************************************************************
      *                              SHADER                                             *
      ***********************************************************************************/
-    fops_read("source/simple.vert");
+    fops_read("resource/simple.vert");
     uint32_t vertex_shader = shader_compile(fops_buffer, GL_VERTEX_SHADER);
 
-    fops_read("source/simple.frag");
+    fops_read("resource/simple.frag");
     uint32_t fragment_shader = shader_compile(fops_buffer, GL_FRAGMENT_SHADER);
 
     uint32_t shader_program = shader_link(vertex_shader, fragment_shader);
@@ -112,7 +112,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int32_t width, height, n_channels;
-    uint8_t *data = stbi_load("source/container.jpg", &width, &height, &n_channels, 0);
+    uint8_t *data = stbi_load("resource/container.jpg", &width, &height, &n_channels, 0);
     if(data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);

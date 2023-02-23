@@ -13,5 +13,5 @@ void fops_read(const char *file_path) {
             fops_buffer[newlen++] = '\0';
         }
     }
-    fclose(fileptr);
+    //fclose(fileptr);
 }
