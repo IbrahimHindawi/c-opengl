@@ -35,6 +35,6 @@ rem echo:
 rem echo link...
 rem link /nologo /FORCE:MULTIPLE /out:main.exe %ofiles% %slib% %k32% %u32% %g32% %s32%  
 
-msbuild c-opengl.sln
+msbuild c-opengl.sln -nologo -ds:False -v:m
 
 popd build

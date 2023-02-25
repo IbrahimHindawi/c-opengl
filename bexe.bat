@@ -1,3 +1,3 @@
 @echo off
-bbuild
-build\main.exe
+ccompile
+build\Debug\c-opengl.exe

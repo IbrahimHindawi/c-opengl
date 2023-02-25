@@ -1,2 +1,2 @@
 @echo off
-build\main.exe
+build\Debug\c-opengl.exe
