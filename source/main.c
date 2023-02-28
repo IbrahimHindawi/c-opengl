@@ -61,35 +61,21 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 }
 
 void input(GLFWwindow *window) {
+  const float camera_speed = 10.0f * delta_time;
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
-  const float camera_speed = 1.0f * delta_time;
-  vec3 temp_vec = {0.0f};
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     glm_vec3_muladds(camera_forward, camera_speed, camera_position);
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    // glm_vec3_muladds(camera_forward, -camera_speed, camera_position);
-    glm_cross(camera_forward, camera_up, temp_vec);
-    glm_normalize(temp_vec);
     glm_vec3_muladds(camera_forward, -camera_speed, camera_position);
   }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    glm_cross(camera_forward, camera_up, temp_vec);
-    glm_normalize(temp_vec);
     glm_vec3_muladds(camera_right, camera_speed, camera_position);
-    // temp_vec[0] *= camera_speed;
-    // temp_vec[1] *= camera_speed;
-    // temp_vec[2] *= camera_speed;
-    // glm_vec3_add(temp_vec, camera_position, camera_position);
-    printf("temp_vec{%f, %f, %f}\n", temp_vec[0], temp_vec[1], temp_vec[2]);
-    printf("camera_position{%f, %f, %f}\n", camera_position[0], camera_position[1], camera_position[2]);
   }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    glm_cross(camera_forward, camera_up, temp_vec);
-    glm_normalize(temp_vec);
-    glm_vec3_muladds(camera_right, camera_speed, camera_position);
+    glm_vec3_muladds(camera_right, -camera_speed, camera_position);
   }
 }
 
@@ -119,7 +105,7 @@ int main() {
   // printf("Maximum number of attributes: %d.\n", num_attribs);
 
   /***********************************************************************************
-   *                              SHADER *
+   *                              SHADER                                             *
    ***********************************************************************************/
   fops_read("resource/simple.vert");
   uint32_t vertex_shader = shader_compile(fops_buffer, GL_VERTEX_SHADER);
@@ -133,7 +119,7 @@ int main() {
   glDeleteShader(fragment_shader);
 
   /***********************************************************************************
-   *                              TEXTURE        *
+   *                              TEXTURE                                            *
    ***********************************************************************************/
   uint32_t texture;
   glGenTextures(1, &texture);
@@ -158,7 +144,7 @@ int main() {
   STBI_FREE(data);
 
   /***********************************************************************************
-   *                              GLOBJECTS *
+   *                              GLOBJECTS                                          *
    ***********************************************************************************/
   uint32_t vao, vbo;
   glGenVertexArrays(1, &vao);
@@ -198,7 +184,7 @@ int main() {
   glEnableVertexAttribArray(2);
 
   /***********************************************************************************
-   *                              TRANSFORMS *
+   *                              TRANSFORMS                                         *
    ***********************************************************************************/
   camera_position[2] = 3.0f;
   glm_vec3_sub(camera_direction, camera_position, camera_direction);
@@ -218,7 +204,7 @@ int main() {
   glm_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f, proj );
 
   /***********************************************************************************
-   *                              LOOP*
+   *                              LOOP                                               *
    ***********************************************************************************/
   while (!glfwWindowShouldClose(window)) {
     float current_frame = (float)glfwGetTime();
@@ -230,7 +216,9 @@ int main() {
     input(window);
 
     // update
-    glm_lookat(camera_position, (vec3){0.0f, 0.0f, 0.0f}, camera_up, view);
+    glm_vec3_dup(camera_position, camera_target);
+    glm_vec3_sub(camera_target, (vec3){0.0f, 0.0f, 10.0f}, camera_target);
+    glm_lookat(camera_position, camera_target, camera_up, view);
 
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -249,7 +237,6 @@ int main() {
     for (int count = 0; count < 10; count += 1) {
       glm_mat4_identity(model);
       vec3 axis = {1.0f, 0.0f, 0.0f};
-      // glm_rotate(model, glm_rad(-90.0f), axis);
       vec3 trans = {0.0f, 0.0f, -3.0f};
       trans[1] += (float)count;
       glm_translate(model, trans);
