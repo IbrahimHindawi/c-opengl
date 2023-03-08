@@ -266,6 +266,7 @@ int main() {
   glDeleteVertexArrays(1, &vao);
   glDeleteBuffers(1, &vbo);
 
+  // bla bla bla
   glDeleteVertexArrays(1, &svao);
   glDeleteBuffers(1, &svbo);
   glDeleteBuffers(1, &sebo);
