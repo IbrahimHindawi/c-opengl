@@ -38,6 +38,6 @@ rem link /nologo /FORCE:MULTIPLE /out:main.exe %ofiles% %slib% %k32% %u32% %g32%
 rem msbuild c-opengl.sln
 
 cmake ..
-powershell -Command clang-build.ps1 -export-jsondb
+powershell -Command ..\clang-build.ps1 -export-jsondb
 
 popd build
