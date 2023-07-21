@@ -26,12 +26,20 @@ float delta_time = 0.0f; // time between the current frame and the last frame
 float last_frame = 0.0f; // time to render the last frame
 float angle = 0.0f;
 
+// camera
 vec3 camera_position = {0};
 vec3 camera_forward = {0};
 vec3 camera_up = {0};
 vec3 camera_right = {0};
 vec3 camera_target = {0};
 vec3 camera_direction = {0};
+
+int first_mouse = true;
+float yaw = -90.0f;
+float pitch = 0.0f;
+float last_x = 400.0f;
+float last_y = 500.0f;
+float fov = 45.0f;
 
 mat4 model= {0};
 mat4 view = {0};
@@ -121,6 +129,40 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+void mouse_callback(GLFWwindow *Window, double xpos, double ypos) {
+    float xposf = (float)xpos;
+    float yposf = (float)ypos;
+    if(first_mouse) {
+        last_x = xposf;
+        last_y = yposf;
+        first_mouse = false;
+    }
+    float xoffset = xposf - last_x;
+    float yoffset = last_y - yposf; 
+    last_x = xposf;
+    last_y = yposf;
+
+    float sensitivity = 0.1f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw   += xoffset;
+    pitch += yoffset;
+
+    if(pitch > 89.0f)
+        pitch = 89.0f;
+    if(pitch < -89.0f)
+        pitch = -89.0f;
+
+    vec3 direction;
+    direction[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
+    direction[1] = sin(glm_rad(pitch));
+    direction[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
+    glm_normalize(direction);
+    glm_vec3_dup(direction, camera_forward);
+
+}
+
 void input(GLFWwindow *window) {
     const float camera_speed = 3.0f * delta_time;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -133,10 +175,14 @@ void input(GLFWwindow *window) {
         glm_vec3_muladds(camera_forward, -camera_speed, camera_position);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        glm_vec3_muladds(camera_right, camera_speed, camera_position);
+        glm_vec3_cross(camera_forward, camera_up, camera_right);
+        glm_vec3_normalize(camera_right);
+        glm_vec3_muladds(camera_right, -camera_speed, camera_position);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        glm_vec3_muladds(camera_right, -camera_speed, camera_position);
+        glm_vec3_cross(camera_forward, camera_up, camera_right);
+        glm_vec3_normalize(camera_right);
+        glm_vec3_muladds(camera_right, camera_speed, camera_position);
     }
 }
 
@@ -158,6 +204,8 @@ int main() {
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         printf("Failed to initialize GLAD.\n");
@@ -227,16 +275,18 @@ int main() {
 
     glBindVertexArray(0);
 
-    //  TRANSFORMS
+    //  XFORMS
     //-------------------------------------------
-    // camera
+    // camera direction
     camera_position[2] = 3.0f;
     glm_vec3_sub(camera_direction, camera_position, camera_direction);
     glm_vec3_normalize(camera_direction);
 
+    // camera right
     glm_vec3_cross((vec3){0.0f, 1.0f, 0.0f}, camera_direction, camera_right);
     glm_vec3_normalize(camera_right);
 
+    // camera up
     glm_vec3_cross(camera_direction, camera_right, camera_up);
 
     camera_forward[2] = -1.0f;
@@ -244,7 +294,7 @@ int main() {
     // mesh
     glm_mat4_identity(model);
     glm_mat4_identity(view);
-    glm_mat4_identity(proj );
+    glm_mat4_identity(proj);
     glm_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f, proj );
 
     //  LOOPS
@@ -260,7 +310,10 @@ int main() {
         // update
         glm_vec3_dup(camera_position, camera_target);
         glm_vec3_sub(camera_target, (vec3){0.0f, 0.0f, 10.0f}, camera_target);
-        glm_lookat(camera_position, camera_target, camera_up, view);
+        // glm_lookat(camera_position, camera_target, camera_up, view);
+        vec3 camera_new_location;
+        glm_vec3_add(camera_position, camera_forward, camera_new_location);
+        glm_lookat(camera_position, camera_new_location, camera_up, view);
 
         // render
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
