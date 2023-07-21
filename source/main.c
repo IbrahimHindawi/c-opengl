@@ -89,6 +89,18 @@ float svertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
+vec3 cubePositions[] = {
+    { 0.0f,  0.0f,  0.0f }, 
+    { 2.0f,  5.0f, -15.0f}, 
+    {-1.5f, -2.2f, -2.5f },  
+    {-3.8f, -2.0f, -12.3f},  
+    { 2.4f, -0.4f, -3.5f },  
+    {-1.7f,  3.0f, -7.5f },  
+    { 1.3f, -2.0f, -2.5f },  
+    { 1.5f,  2.0f, -2.5f }, 
+    { 1.5f,  0.2f, -1.5f }, 
+    {-1.3f,  1.0f, -1.5f }  
+};
 // uint32_t sindices[] = {
 //     0, 3, 1,
 //     4, 7, 5,
@@ -129,9 +141,9 @@ void input(GLFWwindow *window) {
 }
 
 int main() {
-    /***********************************************************************************
-    *                              INITIALIZATION                                     *
-    ***********************************************************************************/
+    
+    //  INITIALIZATION
+    //-------------------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -157,9 +169,8 @@ int main() {
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &num_attribs);
     // printf("Maximum number of attributes: %d.\n", num_attribs);
 
-    /***********************************************************************************
-    *                              SHADER                                             *
-    ***********************************************************************************/
+    //  SHADER
+    //-------------------------------------------
     fops_read("resource/simple.vert");
     uint32_t vertex_shader = shader_compile(fops_buffer, GL_VERTEX_SHADER);
 
@@ -171,9 +182,8 @@ int main() {
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    /***********************************************************************************
-    *                              TEXTURE                                            *
-    ***********************************************************************************/
+    //  TEXTURE
+    //-------------------------------------------
     uint32_t texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -196,9 +206,8 @@ int main() {
     }
     STBI_FREE(data);
 
-    /***********************************************************************************
-    *                              GLOBJECTS                                          *
-    ***********************************************************************************/
+    //  GLOBJECTS
+    //-------------------------------------------
     uint32_t svao, svbo;
     glGenVertexArrays(1, &svao);
     glGenBuffers(1, &svbo);
@@ -218,9 +227,9 @@ int main() {
 
     glBindVertexArray(0);
 
-    /***********************************************************************************
-     *                              TRANSFORMS                                         *
-     ***********************************************************************************/
+    //  TRANSFORMS
+    //-------------------------------------------
+    // camera
     camera_position[2] = 3.0f;
     glm_vec3_sub(camera_direction, camera_position, camera_direction);
     glm_vec3_normalize(camera_direction);
@@ -232,22 +241,20 @@ int main() {
 
     camera_forward[2] = -1.0f;
 
+    // mesh
     glm_mat4_identity(model);
     glm_mat4_identity(view);
     glm_mat4_identity(proj );
     glm_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f, proj );
 
-    /***********************************************************************************
-     *                              LOOP                                               *
-     ***********************************************************************************/
-    float rot = 0.0f;
+    //  LOOPS
+    //-------------------------------------------
     while (!glfwWindowShouldClose(window)) {
         float current_frame = (float)glfwGetTime();
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
         // input
-        // angle += 0.0001f;
         input(window);
 
         // update
@@ -272,18 +279,20 @@ int main() {
 
         glBindVertexArray(svao);
 
-        glm_mat4_identity(model);
-        vec3 axis = {1.0f, 0.0f, 0.0f};
-        vec3 trans = {0.0f, 0.0f, -3.0f};
-        glm_translate(model, trans);
-        rot += 0.0001f;
-        glm_rotate(model, rot, (vec3){1.0f, 0.0f, 0.0f});
-        glm_rotate(model, rot, (vec3){0.0f, 1.0f, 0.0f});
-        glm_rotate(model, rot, (vec3){0.0f, 0.0f, 1.0f});
-        uint32_t model_location = glGetUniformLocation(shader_program, "model");
-        glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
+        for (int i = 0; i < 10; i++) {
+            glm_mat4_identity(model);
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            glm_translate(model, cubePositions[i]);
+
+            float angle = 20.0f * i;
+            glm_rotate(model, angle, (vec3){0.5f, 0.3f, 0.2f});
+
+            uint32_t model_location = glGetUniformLocation(shader_program, "model");
+            glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
         glBindVertexArray(0);
 
         glfwPollEvents();
