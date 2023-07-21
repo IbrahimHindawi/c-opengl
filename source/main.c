@@ -44,6 +44,7 @@ float vertices[] = {
    0.0f,  0.5f, 0.0f
 };
 
+// plane
 float svertices[] = {
      0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
      0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
@@ -61,7 +62,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 }
 
 void input(GLFWwindow *window) {
-    const float camera_speed = 10.0f * delta_time;
+    const float camera_speed = 3.0f * delta_time;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
@@ -80,6 +81,9 @@ void input(GLFWwindow *window) {
 }
 
 int main() {
+    /***********************************************************************************
+    *                              INITIALIZATION                                     *
+    ***********************************************************************************/
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -91,6 +95,7 @@ int main() {
         glfwTerminate();
         return -1;
     }
+
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -100,21 +105,15 @@ int main() {
         return -1;
     }
 
-<<<<<<< HEAD
     int num_attribs;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &num_attribs);
     // printf("Maximum number of attributes: %d.\n", num_attribs);
+
     /***********************************************************************************
     *                              SHADER                                             *
     ***********************************************************************************/
     fops_read("resource/simple.vert");
     uint32_t vertex_shader = shader_compile(fops_buffer, GL_VERTEX_SHADER);
-=======
-  // bla bla bla
-  glDeleteVertexArrays(1, &svao);
-  glDeleteBuffers(1, &svbo);
-  glDeleteBuffers(1, &sebo);
->>>>>>> 21540d806ed0b740428b5c4295cfa1511e7e3865
 
     fops_read("resource/simple.frag");
     uint32_t fragment_shader = shader_compile(fops_buffer, GL_FRAGMENT_SHADER);
@@ -223,6 +222,7 @@ int main() {
 
         glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(svao);
+
         glm_mat4_identity(model);
         vec3 axis = {1.0f, 0.0f, 0.0f};
         vec3 trans = {0.0f, 0.0f, -3.0f};
