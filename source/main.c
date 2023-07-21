@@ -44,18 +44,66 @@ float vertices[] = {
    0.0f,  0.5f, 0.0f
 };
 
-// plane
+
 float svertices[] = {
-     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
-     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
-    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-    -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f  // top left
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
-uint32_t sindices[] = {
-    0, 1, 3, // first triangle
-    1, 2, 3  // second triangle
-};
+// uint32_t sindices[] = {
+//     0, 3, 1,
+//     4, 7, 5,
+//     6, 2, 7,
+//     5, 1, 4,
+//     5, 2, 0,
+//     1, 6, 4,
+//     6, 1, 3,
+//     2, 5, 7,
+//     1, 5, 0,
+//     2, 6, 3,
+//     7, 4, 6,
+//     3, 0, 2
+// };
+
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -147,30 +195,28 @@ int main() {
         printf("failed to load texture.");
     }
     STBI_FREE(data);
+
     /***********************************************************************************
     *                              GLOBJECTS                                          *
     ***********************************************************************************/
-
-    uint32_t svao, svbo, sebo;
+    uint32_t svao, svbo;
     glGenVertexArrays(1, &svao);
     glGenBuffers(1, &svbo);
-    glGenBuffers(1, &sebo);
 
     glBindVertexArray(svao);
+
     glBindBuffer(GL_ARRAY_BUFFER, svbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(svertices), svertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sindices), sindices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+    // pos
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+    // tex
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(sizeof(float) * 3));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glBindVertexArray(0);
 
     /***********************************************************************************
      *                              TRANSFORMS                                         *
@@ -194,6 +240,7 @@ int main() {
     /***********************************************************************************
      *                              LOOP                                               *
      ***********************************************************************************/
+    float rot = 0.0f;
     while (!glfwWindowShouldClose(window)) {
         float current_frame = (float)glfwGetTime();
         delta_time = current_frame - last_frame;
@@ -210,7 +257,8 @@ int main() {
 
         // render
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
 
         uint32_t view_location = glGetUniformLocation(shader_program, "view");
         glUniformMatrix4fv(view_location, 1, GL_FALSE, view[0]);
@@ -218,19 +266,24 @@ int main() {
         uint32_t proj_location = glGetUniformLocation(shader_program, "proj");
         glUniformMatrix4fv(proj_location, 1, GL_FALSE, proj[0]);
 
+        glBindTexture(GL_TEXTURE_2D, texture);
+
         glUseProgram(shader_program);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(svao);
 
         glm_mat4_identity(model);
         vec3 axis = {1.0f, 0.0f, 0.0f};
         vec3 trans = {0.0f, 0.0f, -3.0f};
         glm_translate(model, trans);
+        rot += 0.0001f;
+        glm_rotate(model, rot, (vec3){1.0f, 0.0f, 0.0f});
+        glm_rotate(model, rot, (vec3){0.0f, 1.0f, 0.0f});
+        glm_rotate(model, rot, (vec3){0.0f, 0.0f, 1.0f});
         uint32_t model_location = glGetUniformLocation(shader_program, "model");
         glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
         glfwPollEvents();
@@ -239,7 +292,6 @@ int main() {
 
     glDeleteVertexArrays(1, &svao);
     glDeleteBuffers(1, &svbo);
-    glDeleteBuffers(1, &sebo);
 
     glfwTerminate();
     return 0;
