@@ -1,2 +1,3 @@
-del /S /Q build
+@echo off
+
 rmdir /S /Q build
