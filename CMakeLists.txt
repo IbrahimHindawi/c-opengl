@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(cgfx VERSION 1.0)
+set(ProjectNameParam "DefaultProject" CACHE STRING "Command line argument containing the project name.")
+project(${ProjectNameParam} VERSION 1.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(${PROJECT_NAME}
     source/main.c
@@ -16,6 +17,9 @@ include_directories(source/)
 include_directories(thirdparty/glad/include)
 include_directories(thirdparty/stb/include)
 include_directories(thirdparty/linmath/include)
+include_directories(extern/haikal/include)
+
+add_subdirectory(extern/haikal)
 
 find_package(cglm CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE cglm::cglm)
