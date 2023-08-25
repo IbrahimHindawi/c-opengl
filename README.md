@@ -10,4 +10,5 @@ this is a C translation of https://www.learnopengl.com
 [stb_image.h](https://www.github.com/nothings/stb)  
 
 ## how to build:  
-run `bbuild.bat` from `x64 Native Tools Command Prompt for VS 2019`  
+* run `bbuild.bat -b` from `x64 Native Tools Command Prompt for VS 2019`  
+* run `bbuild.bat -cr` to compile & run
